@@ -1,0 +1,22 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#canvas {
+    width: 100%;
+    height: auto;
+    background-color: #000000;
+}
+
+.error {
+    color: #ff0000;
+}
+
+.pad {
+    padding-top: 5px;
+}
+
+.ui-dialog-titlebar-close {
+    display: none;
+}
