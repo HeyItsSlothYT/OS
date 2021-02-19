@@ -4,8 +4,8 @@ let gameInterval = "";
 let gameData = {};
 var audio = $("#snakeEat")[0];
 
-const rollSound = new Audio("../audio/snakeeat.wav");
-const overSound = new Audio("../audio/gameOver.wav");
+const rollSound = new Audio("./src/snake/audio/snakeeat.wav");
+const overSound = new Audio("./src/snake/audio/gameOver.wav");
 let points = 0;
 
 window.onload = function () {
