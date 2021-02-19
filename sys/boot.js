@@ -79,7 +79,7 @@ async function load() {
 	// Load Desktop
 	// Load Desktop
 	
-	add(`<footer id="footer" class="content"><button id="start" class="strtbtn"	class="input">Start</button><span id="time" style="padding: 1px; float: right; background: #c2c2c2; color: #000000; border-bottom: 2px solid #f7f7f7; border-right: 2px solid #f7f7f7; border-top: 2px solid #d1d1d1; border-left: 2px solid #d1d1d1;"></span></footer>`)
+	add(`<footer id="footer" class="content"><button id="start" class="input">Start</button><span id="time" style="padding: 1px; float: right; background: #c2c2c2; color: #000000; border-bottom: 2px solid #f7f7f7; border-right: 2px solid #f7f7f7; border-top: 2px solid #d1d1d1; border-left: 2px solid #d1d1d1;"></span></footer>`)
 	add(`<section id="display" style="top: 0px; left: 0px;"></section>`)
 	
 	let time = async function() {
