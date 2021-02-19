@@ -10,27 +10,51 @@
 				margin: 0;
 				padding: 0;
 			}
+			#canvas {
+				width: 100%;
+				height: auto;
+			}
 		</style>
+
+<script>
+	let width = window.innerWidth;
+	let height = window.innerHeight;
+</script>
+
 	</head>
 	
 	<body>
-		<canvas id="canvas" style="height: 600px; width: 600px;"></canvas>
+		<canvas id="canvas"></canvas>
 		<script>
 			var canvas = document.getElementById('canvas');
 			var context = canvas.getContext('2d');
 
 			var fps = 8;
-			var canvasSize = 600;
+			
+			var canvasSize = (width + height)/2;
 			var gridSize = canvasSize / 50;
-			canvas.height = canvasSize;
-			canvas.width = canvasSize;
 
+			console.log("innerWidth" + window.innerWidth);
+			console.log("innerHeight" + window.innerHeight);
+			console.log("width: " + width);
+			console.log("height: " + height);
+			console.log("canvasSize: " + canvasSize);
+			console.log("gridSize: " + gridSize);
+
+			canvas.height = height;
+			canvas.width = width;
+			
 			var direction = newDirection = 1; // -2: up, 2: down, -1: left, 1: right
 			var snakeLength = 5;
 			let snakeColor = '#3e9106';
-			var snake = [{x: canvasSize / 2, y: canvasSize / 2}]; // Snake starts in the center
+			var snake = [{x: canvasSize  / 2, y: canvasSize  / 2}]; // Snake starts in the center
+			console.log("Snake Start: " + snake[0].x + "/" + snake[0].y);
 			var candy = null;
 			var gameEnd = false;
+
+			function gameOver() {
+				location.reload(); // Refresh page
+			}
 
 			function randomOffset() {
 				return Math.floor(Math.random() * canvasSize / gridSize) * gridSize;
@@ -42,6 +66,7 @@
 
 			function tick() {
 				var newHead = {x: snake[0].x, y: snake[0].y};
+				console.log(newHead);
 
 				// Only change directon if the new direction is a different axis
 				if (Math.abs(direction) !== Math.abs(newDirection)) {
@@ -53,6 +78,7 @@
 				} else {
 					newHead[axis] += gridSize; // Move right or up
 				}
+				
 				
 				if (candy && candy.x === newHead.x && candy.y === newHead.y) {
 					if (candy.type == 'apple') { // Add to snakes length
@@ -67,17 +93,20 @@
 				}
 				
 				context.fillStyle = '#0b6e44'; // Background Color
-				context.fillRect(0, 0, canvasSize, canvasSize); // Reset the play area
+				context.fillRect(0, 0, width, height); // Reset the play area
 				if (gameEnd) {
-					location.reload(); // Refresh page
+					gameOver();
 				} else {
 					// Move snake forward
 					snake.unshift(newHead);
 					snake = snake.slice(0, snakeLength);
 				}
 				
-				if (newHead.x < 0 || newHead.x >= canvasSize || newHead.y < 0 || newHead.y >= canvasSize) { // Detect wall collisions
-					gameEnd = true;
+				console.log("Bounds X: " + (width-gridSize));
+				console.log("Bounds Y: " + (height-gridSize));
+
+				if (newHead.x < 0 || newHead.x >= (window.innerWidth-gridSize) || newHead.y < 0 || newHead.y >= (window.innerHeight-gridSize)) { // Detect wall collisions
+					gameOver();
 				}
 
 				context.fillStyle = snakeColor;
@@ -107,6 +136,7 @@
 						y: randomOffset(),
 						type: candyType
 					};
+					console.log("Candy: " + candy.x + "/" + candy.y + "/" + candy.type);
 				}
 				
 				if (candy.type == 'apple') {

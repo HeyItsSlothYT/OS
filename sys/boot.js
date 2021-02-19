@@ -14,7 +14,7 @@ async function beforeload() {
 }
 
 async function preload() {
-	add(platform.ua);
+	/*add(platform.ua);
 	add(new Date());
 	add("<br>");
 	add("<br>");
@@ -57,6 +57,7 @@ async function preload() {
 	add("<br>");
 	
 	await delay(Math.floor(Math.random() * 1000))
+	*/
 	load()
 }
 
@@ -211,6 +212,26 @@ async function load() {
 			height: 32,
 			rename: "eMessage.exe",
 			title: "Talk to your friends!"
+		},
+		{
+			x: 453,
+			y: 8,
+			z: 1000,
+			name: "FileExplorer.lnk",
+			path: "desktop/",
+			types: {
+				exe: "./sys/exe/fileExplorer/windows.html",
+				tabWidth: 600,
+				tabHeight: 700,
+				icon: "./sys/assets/messages.png",
+				tabName: "Explorer"
+			},
+			call: "run(this)",
+			img: "./sys/assets/messages.png",
+			width: 32,
+			height: 32,
+			rename: "FileExplorer.exe",
+			title: "View our Programs!"
 		}
 	]
 	
