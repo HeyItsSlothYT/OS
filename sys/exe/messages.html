@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Nodes</title>
+		<meta charset="utf-8">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js"></script>
+		<style type="text/css">
+			* {
+				font-family: 'HK Grotesk', sans-serif;
+				font-size: 12px;
+				color: #fcfcfc;
+			}
+			body {
+				background: #0c112b;
+				<!-- background: linear-gradient(180deg, #1b223d, #0c112b, #0c112b); -->
+				margin: 8px;
+				padding: 8px;
+			}
+			hr {
+				border: 1px solid #686c7c;
+			}
+			.box {
+				background: #151b35;
+				border: 0px;
+				border-radius: 6px;
+				padding: 20px;
+				display: inline-block;
+			}
+			.title {
+				font-size: 20px;
+				color: #fcfcfc;
+			}
+			.label {
+				font-size: 14px;
+				color: #5b5f71;
+			}
+			button {
+				background: #efefef;
+				color: #1a223c;
+				font-weight: bold;
+				font-size: 16px;
+				padding: 10px;
+				border: 0px;
+				border-radius: 4px;
+				transition: background 0.2s ease-in-out;
+			}
+			button:hover {
+				cursor: pointer;
+				background: #f7f7f7;
+				transition: background 0.2s ease-in-out;
+			}
+			input, select {
+				background: #0b122b;
+				color: #efefef;
+				font-size: 16px;
+				padding: 10px;
+				border: 0px solid #686c7c;
+				border-radius: 4px;
+			}
+			select:hover {
+				cursor: pointer;
+			}
+			button, input, select {
+				outline: none;
+			}
+			p {
+				margin: 0px;
+				padding: 0px;
+			}
+		</style>
+		<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+		<script type="text/javascript">
+			function addElement(sourceid, data) {
+				document.getElementById(sourceid).insertAdjacentHTML('beforeend', data);
+			}
+			const delay = ms => new Promise(res => setTimeout(res, ms)); // Create a delay
+		</script>
+		<script>
+			window.onload = function() {
+				document.getElementById("key").addEventListener("keyup", function(event) {
+					if (event.keyCode === 13) {
+						event.preventDefault();
+						document.getElementById("connect").click();
+					}
+				});
+				document.getElementById("token").addEventListener("keyup", function(event) {
+					if (event.keyCode === 13) {
+						event.preventDefault();
+						document.getElementById("open").click();
+					}
+				});
+				document.getElementById("message").addEventListener("keyup", function(event) {
+					if (event.keyCode === 13) {
+						event.preventDefault();
+						document.getElementById("send").click();
+					}
+				});
+			}
+			
+			let peer = new Peer();
+			let server;
+			let conn;
+			let open = false;
+			let online = false;
+			let selected = null;
+			function connect() {
+				if (open == false) {
+					conn = peer.connect(document.getElementById("key").value);
+					
+					conn.on('open', function() {
+						addElement("shell", "Client: Connected<br>")
+						conn.on('data', function(data) {
+							addElement("shell", "Client: Received \"" + data + "\"<br>")
+						});
+						document.getElementById("key").disabled = true;
+						document.getElementById("connect").innerHTML = "Disconnect";
+						document.getElementById("client-status").innerHTML = "Connected";
+						open = true;
+					});
+					conn.on('close', function(data) {
+						addElement("shell", "Client: Disconnected<br>")
+						document.getElementById("key").disabled = false;
+						document.getElementById("connect").innerHTML = "Connect";
+						document.getElementById("client-status").innerHTML = "Not connected";
+						open = false;
+					});
+					conn.on('error', function(err) {
+						console.log(err)
+						addElement("shell", "Client Error: " + err + "<br>")
+					});
+				} else {
+					conn.close()
+				}
+			}
+			function establish() {
+				if (online == false) {
+					server = new Peer(document.getElementById("token").value, {
+						host: "0.peerjs.com",
+						port: parseInt(document.getElementById("port").value),
+						secure: eval(document.getElementById("secure").value),
+						debug: 0
+					});
+					document.getElementById("token").disabled = true;
+					document.getElementById("secure").disabled = true;
+					document.getElementById("open").innerHTML = "Close";
+					
+					server.on('open', function(id) {
+						<!-- console.log("open") -->
+						addElement("shell", "Server: Open with token \"" + id + "\"<br>")
+						if (document.getElementById("token").value == "") {
+							document.getElementById("token").value = id;
+						}
+						document.getElementById("server-status").innerHTML = "Online";
+						online = true;
+					});
+					server.on('connection', function(con) {
+						<!-- console.log("connection") -->
+						con.on('data', function(data) {
+							addElement("shell", "Server: Message received \"" + data + "\" from \"" + con.peer + "\"<br>")
+						});
+						con.on('close', function() {
+							addElement("shell", "Server: Client disconnected from \"" + con.peer + "\"<br>")
+							updateStats()
+						});
+						
+						addElement("shell", "Server: Client connected from \"" + con.peer + "\"<br>")
+						updateStats()
+					});
+					server.on('call', function(media) {
+						<!-- console.log("call") -->
+					});
+					server.on('close', function() {
+						<!-- console.log("close") -->
+						document.getElementById("token").disabled = false;
+						document.getElementById("secure").disabled = false;
+						document.getElementById("token").value = "";
+						document.getElementById("open").innerHTML = "Open";
+						document.getElementById("server-status").innerHTML = "Not online";
+						addElement("shell", "Server: Closed<br>")
+						online = false;
+						updateStats()
+						selected = null;
+					});
+					server.on('disconnection', function(e) {
+						<!-- console.log("disconnect") -->
+					});
+					server.on('error', function(err) {
+						<!-- console.log("error", err) -->
+						addElement("shell", "Server: Error<br>")
+						server.destroy();
+					});
+				} else {
+					server.destroy();
+				}
+			}
+			function send(type) {
+				if (type == true) {
+					if (selected == null) {
+						alert("You must have a client selected.")
+						return;
+					}
+					if (online == true && document.getElementById("message").value !== "") {
+						for (let c = 0; c < Object.keys(server.connections).length; c++) {
+							for (let s = 0; s < server.connections[Object.keys(server.connections)[c]].length; s++) {
+								if (server.connections[Object.keys(server.connections)[c]][s].peer == selected.innerHTML) {
+									try {
+										server.connections[Object.keys(server.connections)[c]][s].send(document.getElementById("message").value)
+										addElement("shell", "Server: Sent \"" + document.getElementById("message").value + "\" to \"" + selected.innerHTML + "\"<br>")
+									} catch(e) {}
+								}
+							}
+						}
+						updateStats()
+						
+						document.getElementById("message").value = "";
+					}
+				} else {
+					if (open == true && document.getElementById("message").value !== "") {
+						addElement("shell", "Client: Sent \"" + document.getElementById("message").value + "\"<br>")
+						conn.send(document.getElementById("message").value);
+						document.getElementById("message").value = "";
+					}
+				}
+			}
+			function clearlogs() {
+				document.getElementById("shell").innerHTML = "";
+			}
+			function kickclient() {
+				if (selected == null) {
+					alert("You must have a client selected.")
+					return;
+				}
+				let repeat = function() {
+					for (let c = 0; c < Object.keys(server.connections).length; c++) {
+						for (let s = 0; s < server.connections[Object.keys(server.connections)[c]].length; s++) {
+							if (server.connections[Object.keys(server.connections)[c]][s].peer == selected.innerHTML) {
+								addElement("shell", "Server: Closed client \"" + selected.innerHTML + "\"<br>")
+								try {
+									server.connections[Object.keys(server.connections)[c]][s].close()
+								} catch(e) {}
+							}
+						}
+					}
+					for (let c = 0; c < Object.keys(server.connections).length; c++) {
+						for (let s = 0; s < server.connections[Object.keys(server.connections)[c]].length; s++) {
+							if (server.connections[Object.keys(server.connections)[c]][s].peer == selected.innerHTML) {
+								repeat()
+								break;
+							}
+						}
+					}
+				}
+				repeat()
+				updateStats()
+			}
+			function kickall() {
+				for (let c = 0; c < Object.keys(server.connections).length; c++) {
+					for (let s = 0; s < server.connections[Object.keys(server.connections)[c]].length; s++) {
+						addElement("shell", "Server: Closed client \"" + server.connections[Object.keys(server.connections)[c]][s].peer + "\"<br>")
+						try {
+							server.connections[Object.keys(server.connections)[c]][s].close()
+						} catch(e) {}
+					}
+				}
+				updateStats()
+			}
+			function updateStats() {
+				document.getElementById("nodes").innerHTML = Object.keys(server.connections).length;
+				document.getElementById("clients").innerHTML = "";
+				for (let c = 0; c < Object.keys(server.connections).length; c++) {
+					var status = clientonline(Object.keys(server.connections)[c]);
+					if (status == false) {
+						document.getElementById("clients").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='select(this)' style='color: #ff4242;'>" + Object.keys(server.connections)[c] + "</a><br>"
+					} else {
+						document.getElementById("clients").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='select(this)'>" + Object.keys(server.connections)[c] + "</a><br>"
+					}
+				}
+			}
+			function clientonline(id) {
+				if (typeof server.connections[id] == 'undefined') return false;
+				if (server.connections[id].length == 0) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			function select(self) {
+				if (self.style.color.toString() == "rgb(255, 66, 66)") return;
+				if (selected !== null && typeof selected !== 'undefined') selected.style = "";
+				if (selected == self) {
+					selected.style = "";
+					selected = null;
+					return;
+				}
+				selected = self;
+				selected.style = "color: #426eff;";
+			}
+		</script>
+	</head>
+	<body>
+		<br style="content: ''; display: block; height: 20px;">
+		<center>
+			<div class="box">
+				<div class="box">
+					<p class="title">Client:</p>
+					<p id="client-status" class="label">Not connected</p>
+					<br>
+					<div>
+						<input id="key" type="text" placeholder="Key"/>
+						<button id="connect" onclick="connect()">Connect</button>
+					</div>
+				</div>
+				<div class="box">
+					<p class="title">Server:</p>
+					<p id="server-status" class="label">Not online</p>
+					<br>
+					<div>
+						<select id="secure">
+							<option value="true">wss://</option>
+							<option value="false">ws://</option>
+						</select>
+						<input id="token" type="text" placeholder="Token"/>
+						<input style="width: 72px;" id="port" type="number" placeholder="Port" min=0 max=65535 value=443></input>
+						<button id="open" onclick="establish()">Open</button>
+					</div>
+				</div>
+			</div>
+			<br>
+			<br style="content: ''; display: block; height: 25px;">
+			<table>
+				<tr>
+					<td style="padding: 15px;">
+						<div class="box">
+							<p class="title">Transactions:</p>
+							<p id="shell" class="label"></p>
+							
+							<br style="content: ''; display: block; height: 35px;">
+							
+							<p class="title">Messager:</p>
+							<br>
+							<input id="message" type="text" placeholder="Hello, World!"/>
+							<button id="send" onclick="send()">Send</button>
+							<button id="clear" onclick="clearlogs()">Clear Logs</button>
+						</div>
+					</td>
+					<td style="padding: 15px;">
+						<div class="box">
+							<div class="box">
+								<p class="title">Network:</p>
+								<br>
+								<div>
+									<p class="label"><span style="font-weight: bold;">Nodes: </span><span id="nodes">0</span></p>
+									<p class="label"><span style="font-weight: bold;"></span><span style="cursor: pointer;" id="clients"></span></p>
+								</div>
+							</div>
+							<div class="box" style="vertical-align: top;">
+								<p class="title">Control Panel:</p>
+								<br>
+								<center>
+									<div>
+										<button onclick="kickclient()">Kick</button>
+										<button onclick="send(true)">Send</button>
+										<br><br>
+										<button onclick="kickall()">Kick All</button>
+									</div>
+								</center>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>

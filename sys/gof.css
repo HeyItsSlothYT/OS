@@ -1,0 +1,38 @@
+body {
+  background: #ddd;
+}
+
+#container {
+  position: absolute;
+  top: 10px;
+  left: 220px;
+  
+  background: white;
+  border: 1px solid #f00;
+  
+}
+
+#game {
+}
+
+#controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 200px;
+  
+  background: white;
+  border: 1px solid #f00;
+}
+
+#round {
+  padding: 5px;
+}
+
+#buttons {
+  padding: 5px;
+}
+
+#buttons button {
+  width: 100%;
+}
