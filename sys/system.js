@@ -3,18 +3,18 @@
 // File system
 
 document.addEventListener('contextmenu', function(event) {
-	event.preventDefault();
+	//event.preventDefault();
 	
-	let items = document.querySelectorAll('.contextmenu');
-	items.forEach(function(item) { // Remove old context menus
-		item.remove()
-	})
+	//let items = document.querySelectorAll('.contextmenu');
+	//items.forEach(function(item) { // Remove old context menus
+		//item.remove()
+///})
 	
-	add(`<section class="contextmenu" style="left: ${event.clientX}px; top: ${event.clientY}px; z-index: ${Math.pow(parseInt(getSave("latestZ", 1000)), 5)};">
+	/*add(`<section class="contextmenu" style="left: ${event.clientX}px; top: ${event.clientY}px; z-index: ${Math.pow(parseInt(getSave("latestZ", 1000)), 5)};">
 		<ul name="contextmenu" class="menu">
 			<li name="refresh" class="menuitem"><span class="menuicon"></span>Refresh</li>
 		</ul>
-	</section>`)
+	</section>`)*/
 	// reloadIcons()
 });
 document.getElementById("start").addEventListener("click", function() {

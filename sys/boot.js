@@ -1,20 +1,21 @@
 let addScript;
 window.onload = beforeload;
 async function beforeload() {
-	addScript = function(file) { // Load Scripts
+	addScript = function (file) { // Load Scripts
 		var script = document.createElement("script");
 		script.type = "text/javascript";
 		script.src = file;
 		document.body.append(script);
 	}
-	await addScript("./sys/utils.js")
-	
+
+	addScript("./sys/utils.js")
+
 	await new Promise(res => setTimeout(res, 250));
 	preload()
 }
 
 async function preload() {
-	add(platform.ua);
+	/*add(platform.ua);
 	add(new Date());
 	add("<br>");
 	add("<br>");
@@ -57,13 +58,14 @@ async function preload() {
 	add("<br>");
 	
 	await delay(Math.floor(Math.random() * 1000))
+	*/
 	load()
 }
 
 async function load() {
 	await delay(Math.floor(Math.random() * 1000))
 	document.body.innerHTML = "";
-	
+
 	function createIcon(x, y, z, name, call, img, width, height, rename, title) {
 		add(`<section class="moveable clickable" title="${title}" name="${name}" ondblclick="${call}" style="top: ${y}px; left: ${x}px;">
 			<center>
@@ -75,14 +77,14 @@ async function load() {
 			</center>
 		</section>`)
 	}
-	
+
 	// Load Desktop
 	// Load Desktop
-	
+
 	add(`<footer id="footer" class="content"><button id="start" class="input">Start</button><span id="time" style="padding: 1px; float: right; background: #c2c2c2; color: #000000; border-bottom: 2px solid #f7f7f7; border-right: 2px solid #f7f7f7; border-top: 2px solid #d1d1d1; border-left: 2px solid #d1d1d1;"></span></footer>`)
 	add(`<section id="display" style="top: 0px; left: 0px;"></section>`)
-	
-	let time = async function() {
+
+	let time = async function () {
 		var clock = document.getElementById("time");
 		if (clock !== null) {
 			clock.innerHTML = new Date().toLocaleTimeString();
@@ -100,8 +102,8 @@ async function load() {
 			path: "desktop/",
 			types: {
 				exe: "./sys/exe/snake.html",
-				tabWidth: 600,
-				tabHeight: 600,
+				tabWidth: 848,
+				tabHeight: 848,
 				icon: "./sys/assets/snake-1.png",
 				tabName: "Snake"
 			},
@@ -211,13 +213,33 @@ async function load() {
 			height: 32,
 			rename: "eMessage.exe",
 			title: "Talk to your friends!"
+		},
+		{
+			x: 453,
+			y: 8,
+			z: 1000,
+			name: "FileExplorer.lnk",
+			path: "desktop/",
+			types: {
+				exe: "./sys/exe/fileExplorer/windows.html",
+				tabWidth: 600,
+				tabHeight: 700,
+				icon: "./sys/assets/messages.png",
+				tabName: "Explorer"
+			},
+			call: "run(this)",
+			img: "./sys/assets/messages.png",
+			width: 32,
+			height: 32,
+			rename: "FileExplorer.exe",
+			title: "View our Programs!"
 		}
 	]
-	
+
 	// setSave()
 	for (let a = 0; a < app.length; a++) {
 		createIcon(parseInt(getJsonSave(app[a].path + app[a].name, "x", app[a].x)), parseInt(getJsonSave(app[a].path + app[a].name, "y", app[a].y)), parseInt(getJsonSave(app[a].path + app[a].name, "z", app[a].z)), app[a].name, app[a].call, app[a].img, app[a].width, app[a].height, app[a].rename, app[a].title)
-		
+
 		var types = Object.keys(app[a].types);
 		for (let t = 0; t < types.length; t++) {
 			var result = getJsonSave(app[a].path + app[a].name, types[t], null)
@@ -226,17 +248,17 @@ async function load() {
 			}
 		}
 	}
-	
+
 	afterload()
 }
 
 async function afterload() {
 	document.body.classList.remove("terminal");
 	await delay(Math.floor(Math.random() * 100))
-	
+
 	addScript("./sys/desktop.js")
 	addScript("./sys/system.js")
-	
+
 	await delay(Math.floor(Math.random() * 100))
 	document.body.classList.add("desktop");
 }
