@@ -1,25 +1,53 @@
-<html lang="en">
-
+<html>
 <head>
-	<title>snake.exe</title>
-	<meta charset="utf-8">
-	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-	<meta http-equiv="Pragma" content="no-cache">
-	<meta http-equiv="Expires" content="0">
-	<script src="../src/JS/jquery-3.5.1.min.js"></script>
-	<link rel="stylesheet" href="../src/css/jquery-ui.css">
-	<script src="../src/JS/jquery-ui.min.js"></script>
-	<script src="./src/snake/js/snake.js"></script>
-	<link rel="stylesheet" href="./src/snake/css/snake.css">
+<meta charset="UTF-8">
+<title>Snake</title>
+
+<script type="text/javascript" src="../src/js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="../src/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./src/snake/js/snake.js"></script>
 </head>
-
 <body>
-	<canvas id="canvas"></canvas>
-	<div id="dialog" title="Chomper">
-		<div id="gMsg" class="pad">Game over! Do you wish to play again? </div>
-		<div id="gStatus" class="error pad" hidden></div>
-		<button id="gBtn" class="pad">Start</button>
-	</div>
-</body>
+<div class="section">
+    <canvas id="viewport" style='position:absolute; left:0px; top:0px;'></canvas>
+</div>
 
-</html>
+<script>
+(function() {
+        var
+        // Obtain a reference to the canvas element using its id.
+        htmlCanvas = document.getElementById('viewport'),
+        // Obtain a graphics context on the canvas element for drawing.
+        context = htmlCanvas.getContext('2d');
+
+       // Start listening to resize events and draw canvas.
+       initialize();
+
+       function initialize() {
+           // Register an event listener to call the resizeCanvas() function 
+           // each time the window is resized.
+           window.addEventListener('resize', resizeCanvas, false);
+           // Draw canvas border for the first time.
+           resizeCanvas();
+        }
+
+        // Display custom canvas. In this case it's a blue, 5 pixel 
+        // border that resizes along with the browser window.
+        function redraw() {
+           context.strokeStyle = 'blue';
+           context.lineWidth = '5';
+           context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+
+        // Runs each time the DOM window resize event fires.
+        // Resets the canvas dimensions to match window,
+        // then draws the new borders accordingly.
+        function resizeCanvas() {
+            htmlCanvas.width = window.innerWidth;
+            htmlCanvas.height = window.innerHeight;
+            redraw();
+        }
+    })();
+</script>
+</body>
+</html> 
