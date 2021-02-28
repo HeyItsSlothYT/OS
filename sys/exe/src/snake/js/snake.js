@@ -226,6 +226,8 @@ window.onload = function () {
 
     // Initialize the game
     function init() {
+        // change grid size randomly
+        
         // Load images
         images = loadImages(["./src/snake/snake-graphics.png"]);
         tileimage = images[0];
@@ -252,18 +254,21 @@ window.onload = function () {
         }
     }
 
+    function addFruits(min, max) {
+        for (i = 0; i <= randRange(min,max); i++) {
+            addApple(Math.floor(Math.random() * 5) + 2);
+        }
+    }
     function newGame() {
+        randBackground = getRandomRolor();
+        randWallColor = invertColor(randBackground, false);
         // Initialize the snake
         snake.init(10, 10, 1, 10, 4);
 
         // Generate the default level
         level.generate();
 
-        // Add an apple
-        for (i = 0; i <= 5; i++) {
-            addApple(Math.floor(Math.random() * 5) + 2);
-        }
-
+        addFruits(20, 100);
 
         // Initialize the score
         score = 0;
@@ -428,10 +433,10 @@ window.onload = function () {
                         level.tiles[nx][ny] = 0;
 
                         // Add a new apple
-                        addApple(Math.floor(Math.random() * 5) + 2);
+                        addFruits(1,2);
 
                         // Grow the snake
-                        snake.grow(tileType >= 5 ? tileType : tileType == 3 ? -5 : 1);
+                        snake.grow(tileType >= 5 ? randRange(1,10) : tileType == 3 ? randRange(1,10)*-1 : 1);
 
                         // Add a point to the score
                         score += tileType*1.8;
@@ -505,6 +510,73 @@ window.onload = function () {
         }
     }
 
+    let randBackground = ColorLuminance(getRandomRolor(), 5);
+    let randWallColor = invertColor(randBackground, false);
+
+    function ColorLuminance(hex, lum) {
+        // validate hex string
+        hex = String(hex).replace(/[^0-9a-f]/gi, '');
+        if (hex.length < 6) {
+          hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+        }
+        lum = lum || 0;
+      
+        // convert to decimal and change luminosity
+        var rgb = "#", c, i;
+        for (i = 0; i < 3; i++) {
+          c = parseInt(hex.substr(i*2,2), 16);
+          c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+          rgb += ("00"+c).substr(c.length);
+        }
+      
+        return rgb;
+      }
+
+    function getRandomRolor() {
+        var letters = '012345'.split('');
+        var color = '#';        
+        color += letters[Math.round(Math.random() * 5)];
+        letters = '0123456789ABCDEF'.split('');
+        for (var i = 0; i < 5; i++) {
+            color += letters[Math.round(Math.random() * 15)];
+        }
+      return color;
+    } 
+
+    function invertColor(hex, bw) {
+        if (hex.indexOf('#') === 0) {
+            hex = hex.slice(1);
+        }
+        // convert 3-digit hex to 6-digits.
+        if (hex.length === 3) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+        if (hex.length !== 6) {
+            throw new Error('Invalid HEX color.');
+        }
+        var r = parseInt(hex.slice(0, 2), 16),
+            g = parseInt(hex.slice(2, 4), 16),
+            b = parseInt(hex.slice(4, 6), 16);
+        if (bw) {
+            // http://stackoverflow.com/a/3943023/112731
+            return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+                ? '#000000'
+                : '#FFFFFF';
+        }
+        // invert color components
+        r = (255 - r).toString(16);
+        g = (255 - g).toString(16);
+        b = (255 - b).toString(16);
+        // pad each with zeros and return
+        return "#" + padZero(r) + padZero(g) + padZero(b);
+    }
+
+    function padZero(str, len) {
+        len = len || 2;
+        var zeros = new Array(len).join('0');
+        return (zeros + str).slice(-len);
+    }
+
     // Draw the level tiles
     function drawLevel() {
         for (var i = 0; i < level.columns; i++) {
@@ -517,17 +589,17 @@ window.onload = function () {
                 // Draw tiles based on their type
                 if (tile == 0) {
                     // Empty space
-                    context.fillStyle = "#f7e697";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
                 } else if (tile == 1) {
                     // Wall
-                    context.fillStyle = "#bcae76";
+                    context.fillStyle = randWallColor;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
                 } else if (tile == 2) {
                     // Apple
 
                     // Draw apple background
-                    context.fillStyle = "#f7e697";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
 
                     // Draw the apple image
@@ -541,7 +613,7 @@ window.onload = function () {
                     // Mango
 
                     // Draw apple background
-                    context.fillStyle = "#f7e697";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
 
                     // Draw the apple image
@@ -554,7 +626,7 @@ window.onload = function () {
                     // Strawberry
 
                     // Draw apple background
-                    context.fillStyle = "#f7e697 ";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
 
                     // Draw the apple image
@@ -567,7 +639,7 @@ window.onload = function () {
                     // Melon
 
                     // Draw apple background
-                    context.fillStyle = "#f7e697 ";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
 
                     // Draw the apple image
@@ -580,7 +652,7 @@ window.onload = function () {
                     // Orange
 
                     // Draw apple background
-                    context.fillStyle = "#f7e697 ";
+                    context.fillStyle = randBackground;
                     context.fillRect(tilex, tiley, level.tilewidth, level.tileheight);
 
                     // Draw the apple image
